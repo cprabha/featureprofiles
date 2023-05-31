@@ -62,7 +62,7 @@ const (
 	clusterID              = "1.1.1.1"
 	locPref                = 50
 	// https://github.com/openconfig/featureprofiles/issues/1683
-	// commColor              = "color:3:0"
+	commColor         = "color:3:0"
 	setPathAttrPolicy = "SET-BGP-PATH-ATTR"
 	aclStatement20    = "20"
 	bgpMED100         = 100
@@ -298,7 +298,7 @@ func verifyPathAttributes(t *testing.T, dut *ondatra.DUTDevice, ate *ondatra.ATE
 	wantMED := []uint32{}
 	wantNexthop := []string{}
 	// https://github.com/openconfig/featureprofiles/issues/1683
-	// wantCommColor := []string{}
+	wantCommColor := []string{}
 
 	// Build wantArray to compare the diff
 	for i := 0; i < routeCount; i++ {
@@ -306,7 +306,7 @@ func verifyPathAttributes(t *testing.T, dut *ondatra.DUTDevice, ate *ondatra.ATE
 		wantMED = append(wantMED, bgpMED100)
 		wantNexthop = append(wantNexthop, ateDst.IPv4)
 		// https://github.com/openconfig/featureprofiles/issues/1683
-		// wantCommColor = append(wantCommColor, commColor)
+		wantCommColor = append(wantCommColor, commColor)
 	}
 
 	_, ok := gnmi.WatchAll(t, ate, rib.AttrSetAny().AsSegmentAny().State(), 1*time.Minute, func(v *ygnmi.Value[*oc.NetworkInstance_Protocol_Bgp_Rib_AttrSet_AsSegment]) bool {
@@ -333,10 +333,10 @@ func verifyPathAttributes(t *testing.T, dut *ondatra.DUTDevice, ate *ondatra.ATE
 	}
 
 	// https://github.com/openconfig/featureprofiles/issues/1683
-	/* gotCommColor := gnmi.GetAll(t, ate, rib.ExtCommunityAny().ExtCommunity().State())
+	gotCommColor := gnmi.GetAll(t, ate, rib.ExtCommunityAny().ExtCommunity().State())
 	if diff := cmp.Diff(wantCommColor, gotCommColor); diff != "" {
 		t.Errorf("obtained community color on ATE is not as expected, got %v, want %v", gotCommColor, wantCommColor)
-	} */
+	}
 }
 
 // setBgpRoutePolicy is used to configure routing policy to set BGP path attributes on DUT.
