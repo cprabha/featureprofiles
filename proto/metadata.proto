@@ -352,6 +352,9 @@ message Metadata {
     // Device does not support tunnel interfaces source and destination address config paths
     // Juniper: partnerissuetracker.corp.google.com/300111031
     bool tunnel_config_path_unsupported = 118;
+    // Devices does not support mixed prefix length in gribi
+    // Juniper: b/307824407
+    bool gribi_decap_mixed_plen_unsupported = 119;
 
     // Reserved field numbers and identifiers.
     reserved 84, 9, 28, 20, 90;

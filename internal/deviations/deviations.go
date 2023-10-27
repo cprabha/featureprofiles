@@ -654,3 +654,8 @@ func TunnelStatePathUnsupported(dut *ondatra.DUTDevice) bool {
 func TunnelConfigPathUnsupported(dut *ondatra.DUTDevice) bool {
 	return lookupDUTDeviations(dut).GetTunnelConfigPathUnsupported()
 }
+
+// Devices does not support mixed prefix length in gribi.
+func GribiDecapMixedPlenUnsupported(dut *ondatra.DUTDevice) bool {
+	return lookupDUTDeviations(dut).GetGribiDecapMixedPlenUnsupported()
+}
