@@ -389,27 +389,32 @@ func validatePrefixCount(t *testing.T, dut *ondatra.DUTDevice, nbr bgpNeighbor, 
 		return gotInstalled == wantInstalled
 	}).Await(t)
 	if !ok {
-		t.Errorf("Installed prefixes mismatch: got %v, want %v", gotInstalled, wantInstalled)
+		gotInstalledPref, _ := gotInstalled.Val()
+		t.Errorf("Installed prefixes mismatch: got %v, want %v", gotInstalledPref, wantInstalled)
 	}
 
 	if !deviations.MissingPrePolicyReceivedRoutes(dut) {
 		// Waiting for Received count to get updated after session comes up or policy is applied
+		var gotRx *ygnmi.Value[uint32]
 		gotRx, ok := gnmi.Watch(t, dut, prefixPath.ReceivedPrePolicy().State(), 10*time.Second, func(val *ygnmi.Value[uint32]) bool {
 			gotRx, _ := val.Val()
 			return gotRx == wantRx
 		}).Await(t)
 		if !ok {
-			t.Errorf("Received prefixes mismatch: got %v, want %v", gotRx, wantRx)
+			gotRecvPref, _ := gotRx.Val()
+			t.Errorf("Received prefixes mismatch: got %v, want %v", gotRecvPref, wantRx)
 		}
 	}
 
 	// Waiting for Sent count to get updated after session comes up or policy is applied
-	gotSent, ok := gnmi.Watch(t, dut, prefixPath.Sent().State(), 10*time.Second, func(val *ygnmi.Value[uint32]) bool {
+	var gotSent *ygnmi.Value[uint32]
+	gotSent, ok = gnmi.Watch(t, dut, prefixPath.Sent().State(), 10*time.Second, func(val *ygnmi.Value[uint32]) bool {
 		gotSent, _ := val.Val()
 		return gotSent == wantSent
 	}).Await(t)
 	if !ok {
-		t.Errorf("Sent prefixes mismatch: got %v, want %v", gotSent, wantSent)
+		gotSentPref, _ := gotSent.Val()
+		t.Errorf("Sent prefixes mismatch: got %v, want %v", gotSentPref, wantSent)
 	}
 }
 
@@ -467,10 +472,9 @@ func TestBGPPrefixSet(t *testing.T) {
 		verifyBgpState(t, dut)
 	})
 
-	// Validate route count for BGP neighbors with default deny-all routing-policy
-	t.Run("Validate initial prefix count", func(t *testing.T) {
-		validatePrefixCount(t, dut, *ebgp1NbrV4, 0, 5, 0)
-		validatePrefixCount(t, dut, *ebgp1NbrV6, 0, 5, 0)
+	t.Run("Validate default prefixes before applying policy", func(t *testing.T) {
+		validatePrefixCount(t, dut, *ebgp1NbrV4, 5, 5, 0)
+		validatePrefixCount(t, dut, *ebgp1NbrV6, 5, 5, 0)
 		validatePrefixCount(t, dut, *ebgp2NbrV4, 0, 0, 0)
 		validatePrefixCount(t, dut, *ebgp2NbrV6, 0, 0, 0)
 	})
